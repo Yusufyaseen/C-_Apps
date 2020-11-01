@@ -1,0 +1,166 @@
+#include <iostream>
+#include <iomanip>
+#include <bits/stdc++.h>
+#include <conio.h>
+#include <windows.h>
+#include <cstdlib>
+using namespace std;
+HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+bool gameover;
+const int width = 22;
+const int height = 22;
+int x,y,fx,fy,score;
+enum direction {stop , down , r , up , l};
+direction dir;
+int xt[100],yt[100],ntail;
+void setup(){
+    gameover = false;
+    dir = stop;
+    x = width/2;
+    y = height/2;
+    fx = rand()%width;
+    fy = rand()%height;
+    score = 0;
+}
+
+void draw(){
+    system("cls");
+    for(int i = 0 ; i < width+2 ; i++){
+            SetConsoleTextAttribute(h,FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+        cout<<'#';
+    }
+    cout<<endl;
+
+    for(int i = 0 ; i < height ; i++){
+        for(int j = 0 ; j < width ; j++)
+        {
+            if(j==0){
+                    SetConsoleTextAttribute(h,FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+            cout<<"#";}
+            if(i==y && j==x){
+                    SetConsoleTextAttribute(h,FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+            cout<<'O';
+            }
+            else if(i==fy && j==fx){
+                    SetConsoleTextAttribute(h,FOREGROUND_RED | FOREGROUND_INTENSITY);
+            cout<<'F';
+
+            }
+            else{
+               bool print = false;
+               for(int k = 0 ; k < ntail ; k++){
+                    if(xt[k]==j && yt[k]==i){
+                            SetConsoleTextAttribute(h,FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+                        cout<<'o';
+                        print = true;
+                    }
+               }
+               if(!print)
+               cout<<" ";
+            }
+            if(j==width-1){
+                    SetConsoleTextAttribute(h,FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+            cout<<"#";}
+        }
+        cout<<endl;
+    }
+
+    for(int i = 0 ; i < width+2 ; i++){
+        cout<<'#';
+    }
+        cout<<endl;
+
+
+
+}
+
+void input(){
+    if(_kbhit()){
+        switch(_getch()){
+            case 'a':
+                dir = l;
+                break;
+            case 'd':
+                dir = r;
+                break;
+            case 'w':
+                dir = up;
+                break;
+
+            case 's':
+                dir = down;
+                break;
+            case 'x':
+            gameover = true;
+                break;
+        }
+    }
+
+}
+
+void logic(){
+    int prevx = xt[0];
+    int prevy = yt[0];
+    int prev2x,prev2y;
+    xt[0] = x;
+    yt[0] = y;
+    for(int i = 1 ; i <= ntail ; i++){
+        prev2x = xt[i];
+        prev2y = yt[i];
+        xt[i] = prevx;
+        yt[i] = prevy;
+        prevx = prev2x;
+        prevy = prev2y;
+    }
+    switch(dir){
+            case l:
+            x--;
+            break;
+            case r:
+            x++;
+            break;
+            case down:
+            y++;
+            break;
+            case up:
+            y--;
+            break;
+            default:
+                break;
+        }
+       /* if(x>width || x<0 || y>height || y<0)
+            gameover = true;*/
+            if(x>=width) x = 0; else if(x<0) x = width-1;
+            if(y>=height) y = 0; else if(y<0) y = height-1;
+            for(int i = 0 ; i < ntail ; i++){
+                if(xt[i]==x && yt[i]==y)
+                    gameover = true;
+            }
+        if(x==fx && y==fy){
+            score+=5;
+            fx = rand()%width;
+            fy = rand()%height;
+            ntail++;
+        }
+        cout<<endl;
+        cout<<"Your score is : "<<score;
+
+
+}
+
+int main()
+{
+    srand(time(0));
+
+    int x =0;
+    setup();
+    while(!gameover){
+        draw();
+        input();
+        logic();
+        Sleep(50);
+        x++;
+    }
+    cout<<endl<<x;
+}
+
